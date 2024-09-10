@@ -1,5 +1,14 @@
 require("ignore-styles");
 
+function escapeHtml(unsafe) {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 const localRequire = lib => {
   return require(require("path").join(
     process.env.PROJECTPATH,
@@ -146,7 +155,7 @@ async function generateComponent(req, res, pageData, buildInfo) {
         <div id="_react_root">${html}</div>
         ${
           !config.noBundling && buildInfo && buildInfo.js
-            ? `<script id='initial_props' type='application/json'>${json}</script>
+            ? `<script id='initial_props' type='application/json'>${escapeHtml(json)}</script>
           <script src="/${buildInfo.js}"></script>`
             : ""
         }
