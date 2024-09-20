@@ -1,5 +1,6 @@
 require("ignore-styles");
 
+// Security fix: Add escapeHtml function to prevent XSS attacks
 function escapeHtml(unsafe) {
   return unsafe
     .replace(/&/g, "&amp;")
