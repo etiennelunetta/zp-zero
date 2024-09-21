@@ -6,6 +6,19 @@ const localRequire = lib => {
   ));
 };
 
+// Simple sanitization function
+const sanitizeHTML = (str) => {
+  return str.replace(/[&<>'"]/g, 
+    tag => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#39;',
+      '"': '&quot;'
+    }[tag] || tag)
+  );
+};
+
 const debug = require("debug")("vue");
 const path = require("path");
 const Vue = localRequire("vue/dist/vue");
@@ -74,27 +87,27 @@ async function generateComponent(req, res, pageData, buildInfo) {
         meta
       } = app.$meta().inject();
       var markup = `<!doctype html>
-<html data-vue-meta-server-rendered ${htmlAttrs.text()}>
-  <head ${headAttrs.text()}>
-    ${meta.text()}
-    ${title.text()}
-    ${link.text()}
-    ${style.text()}
+<html data-vue-meta-server-rendered ${sanitizeHTML(htmlAttrs.text())}>
+  <head ${sanitizeHTML(headAttrs.text())}>
+    ${sanitizeHTML(meta.text())}
+    ${sanitizeHTML(title.text())}
+    ${sanitizeHTML(link.text())}
+    ${sanitizeHTML(style.text())}
     ${
       buildInfo && buildInfo.css
-        ? `<link rel="stylesheet" href="/${buildInfo.css}">`
+        ? `<link rel="stylesheet" href="${sanitizeHTML(buildInfo.css)}">`
         : ""
     }
-    ${script.text()}
-    ${noscript.text()}
+    ${sanitizeHTML(script.text())}
+    ${sanitizeHTML(noscript.text())}
   </head>
-  <body ${bodyAttrs.text()}>
-    <div id="__ZERO">${html}</div>
+  <body ${sanitizeHTML(bodyAttrs.text())}>
+    <div id="__ZERO">${sanitizeHTML(html)}</div>
     
-    ${script.text({ body: true })}
+    ${sanitizeHTML(script.text({ body: true }))}
     ${
       buildInfo && buildInfo.js
-        ? `<script>window.__ZERO_ASYNCDATA=${json}</script><script src="/${buildInfo.js}"></script>`
+        ? `<script>window.__ZERO_ASYNCDATA=${JSON.stringify(sanitizeHTML(json))}</script><script src="${sanitizeHTML(buildInfo.js)}"></script>`
         : ""
     }
   </body>
